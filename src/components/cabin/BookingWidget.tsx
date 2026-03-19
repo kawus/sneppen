@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { format, differenceInCalendarDays, addDays, isBefore, startOfDay } from "date-fns";
-import { CalendarDays, Minus, Plus, ChevronDown, Info } from "lucide-react";
+import { CalendarDays, Minus, Plus, ChevronDown, Info, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -77,6 +77,8 @@ export function BookingWidget() {
   const [children, setChildren] = useState(0);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [guestPickerOpen, setGuestPickerOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
 
   const totalGuests = adults + children;
@@ -94,11 +96,16 @@ export function BookingWidget() {
     return calculatePricing(checkIn, checkOut, totalGuests);
   }, [checkIn, checkOut, totalGuests]);
 
-  const handleReserve = () => {
+  const handleReserve = async () => {
     setErrors([]);
 
     if (!checkIn || !checkOut) {
       setErrors(["Please select check-in and check-out dates"]);
+      return;
+    }
+
+    if (!email || !email.includes("@")) {
+      setErrors(["Please enter a valid email address"]);
       return;
     }
 
@@ -108,13 +115,32 @@ export function BookingWidget() {
       return;
     }
 
-    // In production, this would redirect to Stripe Checkout
-    const params = new URLSearchParams({
-      checkIn: checkIn.toISOString(),
-      checkOut: checkOut.toISOString(),
-      guests: String(totalGuests),
-    });
-    window.location.href = `/confirmation?${params.toString()}`;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          checkIn: checkIn.toISOString(),
+          checkOut: checkOut.toISOString(),
+          guests: totalGuests,
+          email,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors([data.error || "Something went wrong"]);
+        return;
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch {
+      setErrors(["Failed to connect to payment service"]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -355,6 +381,18 @@ export function BookingWidget() {
               </div>
             )}
 
+            {/* Email input */}
+            <div className="mt-4">
+              <input
+                type="email"
+                placeholder="Your email for confirmation"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 text-sm text-cabin-cream placeholder:text-cabin-cream/30 transition-colors duration-150 hover:border-white/[0.12] focus:border-cabin-amber/40 focus:outline-none focus:ring-0"
+                aria-label="Email address"
+              />
+            </div>
+
             {/* Errors */}
             {errors.length > 0 && (
               <div className="mt-4 rounded-xl bg-red-500/10 p-3">
@@ -369,9 +407,14 @@ export function BookingWidget() {
             {/* Reserve button */}
             <button
               onClick={handleReserve}
-              className="mt-6 flex h-14 w-full items-center justify-center rounded-xl bg-cabin-cream text-base font-semibold tracking-tight text-cabin-dark transition-all duration-200 hover:bg-white hover:shadow-[0_0_40px_rgba(255,255,255,0.08)] active:scale-[0.99]"
+              disabled={loading}
+              className="mt-6 flex h-14 w-full items-center justify-center rounded-xl bg-cabin-cream text-base font-semibold tracking-tight text-cabin-dark transition-all duration-200 hover:bg-white hover:shadow-[0_0_40px_rgba(255,255,255,0.08)] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Reserve
+              {loading ? (
+                <Loader2 className="size-5 animate-spin" />
+              ) : (
+                "Reserve"
+              )}
             </button>
 
             <p className="mt-3 text-center text-xs text-cabin-cream/30">
