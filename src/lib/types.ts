@@ -76,7 +76,6 @@ export interface Cabin {
   houseRules: HouseRules;
   host: Host;
   images: CabinImage[];
-  checkInInfo: CheckInInfo;
 }
 
 // -- Pricing --

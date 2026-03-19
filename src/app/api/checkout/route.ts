@@ -3,7 +3,9 @@ import Stripe from "stripe";
 import { calculatePricing } from "@/lib/pricing";
 import { validateBooking } from "@/lib/availability";
 import { cabin } from "@/lib/cabin";
-import { parseISO } from "date-fns";
+import { parseISO, format } from "date-fns";
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // ============================================================
 // POST /api/checkout — Create Stripe Checkout Session
@@ -18,6 +20,14 @@ export async function POST(request: Request) {
     if (!checkIn || !checkOut || !guests || !email) {
       return NextResponse.json(
         { error: "Missing required fields: checkIn, checkOut, guests, email" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    if (!EMAIL_REGEX.test(email)) {
+      return NextResponse.json(
+        { error: "Invalid email address" },
         { status: 400 }
       );
     }
@@ -56,83 +66,25 @@ export async function POST(request: Request) {
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-    // Build line items
+    const checkInFormatted = format(checkInDate, "MMM d, yyyy");
+    const checkOutFormatted = format(checkOutDate, "MMM d, yyyy");
+
+    // Single line item with the server-calculated total.
+    // Avoids Stripe line-item issues with negative adjustments (discounts).
+    // The client shows the full breakdown; Stripe just needs the correct total.
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
           currency: "usd",
           product_data: {
             name: `${cabin.name} — ${pricing.nights} night${pricing.nights > 1 ? "s" : ""}`,
-            description: `${checkIn} to ${checkOut} · ${guestCount} guest${guestCount > 1 ? "s" : ""}`,
+            description: `${checkInFormatted} to ${checkOutFormatted} · ${guestCount} guest${guestCount > 1 ? "s" : ""} · Includes cleaning fee, service fee, and all adjustments`,
           },
-          unit_amount: Math.round(pricing.baseTotal * 100), // cents
+          unit_amount: Math.round(pricing.total * 100), // cents
         },
         quantity: 1,
       },
     ];
-
-    // Weekend surcharge
-    if (pricing.weekendSurcharge > 0) {
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: { name: "Weekend surcharge" },
-          unit_amount: Math.round(pricing.weekendSurcharge * 100),
-        },
-        quantity: 1,
-      });
-    }
-
-    // Seasonal adjustment
-    if (pricing.seasonalAdjustment !== 0) {
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name:
-              pricing.seasonalAdjustment > 0
-                ? "Seasonal rate adjustment"
-                : "Off-season discount",
-          },
-          unit_amount: Math.round(Math.abs(pricing.seasonalAdjustment) * 100),
-        },
-        quantity: 1,
-      });
-    }
-
-    // Guest surcharge
-    if (pricing.guestSurcharge > 0) {
-      lineItems.push({
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: `Extra guest fee (${guestCount - 4} extra × ${pricing.nights} nights)`,
-          },
-          unit_amount: Math.round(pricing.guestSurcharge * 100),
-        },
-        quantity: 1,
-      });
-    }
-
-    // Cleaning fee
-    lineItems.push({
-      price_data: {
-        currency: "usd",
-        product_data: { name: "Cleaning fee" },
-        unit_amount: Math.round(pricing.cleaningFee * 100),
-      },
-      quantity: 1,
-    });
-
-    // Service fee
-    lineItems.push({
-      price_data: {
-        currency: "usd",
-        product_data: { name: "Service fee" },
-        unit_amount: Math.round(pricing.serviceFee * 100),
-      },
-      quantity: 1,
-    });
 
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({

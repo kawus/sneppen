@@ -1,4 +1,4 @@
-import type { Cabin, PricingConfig, AvailabilityConfig } from "./types";
+import type { Cabin, CheckInInfo, PricingConfig, AvailabilityConfig } from "./types";
 
 // ============================================================
 // Sneppen — Single Property Configuration
@@ -108,14 +108,17 @@ export const cabin: Cabin = {
       category: "outdoor",
     },
   ],
-  checkInInfo: {
-    address: "Skogveien 42, 3580 Geilo, Norway",
-    keyCode: "4829#",
-    hostPhone: "+47 912 34 567",
-    wifiName: "Sneppen-Guest",
-    wifiPassword: "forestcabin2024",
-    emergencyContact: "+47 113 (Norway emergency)",
-  },
+};
+
+// Check-in info is SERVER-ONLY — never import this in client components.
+// Served exclusively via /api/booking after payment verification.
+export const checkInInfo: CheckInInfo = {
+  address: "Skogveien 42, 3580 Geilo, Norway",
+  keyCode: "4829#",
+  hostPhone: "+47 912 34 567",
+  wifiName: "Sneppen-Guest",
+  wifiPassword: "forestcabin2024",
+  emergencyContact: "+47 113 (Norway emergency)",
 };
 
 // ============================================================

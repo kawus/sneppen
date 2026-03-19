@@ -72,7 +72,7 @@ export function calculatePricing(
 
   const numNights = nights.length;
   if (numNights <= 0) {
-    return emptyResult(config);
+    return emptyResult();
   }
 
   let baseTotal = 0;
@@ -137,13 +137,13 @@ export function calculatePricing(
   };
 }
 
-function emptyResult(config: PricingConfig): PricingResult {
+function emptyResult(): PricingResult {
   return {
     nights: 0,
     baseTotal: 0,
     weekendSurcharge: 0,
     seasonalAdjustment: 0,
-    cleaningFee: config.cleaningFee,
+    cleaningFee: 0,
     serviceFee: 0,
     guestSurcharge: 0,
     total: 0,

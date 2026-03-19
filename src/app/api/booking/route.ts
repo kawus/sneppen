@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { checkInInfo } from "@/lib/cabin";
 
 // ============================================================
 // GET /api/booking?session_id=... — Retrieve booking details
+// Only returns data for PAID sessions.
 // ============================================================
 
 export async function GET(request: Request) {
@@ -13,6 +15,14 @@ export async function GET(request: Request) {
     if (!sessionId) {
       return NextResponse.json(
         { error: "Missing session_id parameter" },
+        { status: 400 }
+      );
+    }
+
+    // Validate session ID format
+    if (!sessionId.startsWith("cs_")) {
+      return NextResponse.json(
+        { error: "Invalid session" },
         { status: 400 }
       );
     }
@@ -36,6 +46,14 @@ export async function GET(request: Request) {
       );
     }
 
+    // Only return details for paid sessions
+    if (session.payment_status !== "paid") {
+      return NextResponse.json(
+        { error: "Payment not completed" },
+        { status: 402 }
+      );
+    }
+
     return NextResponse.json({
       id: session.id,
       status: session.payment_status,
@@ -46,6 +64,8 @@ export async function GET(request: Request) {
       checkOut: session.metadata?.checkOut,
       guests: session.metadata?.guests ? Number(session.metadata.guests) : null,
       cabinName: session.metadata?.cabinName,
+      // Check-in secrets only served after payment verification
+      checkInInfo,
     });
   } catch (error) {
     console.error("Booking retrieval error:", error);

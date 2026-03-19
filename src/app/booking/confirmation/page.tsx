@@ -13,7 +13,7 @@ import {
   ArrowLeft,
   AlertCircle,
 } from "lucide-react";
-import { cabin } from "@/lib/cabin";
+import type { CheckInInfo } from "@/lib/types";
 
 interface BookingData {
   id: string;
@@ -25,6 +25,7 @@ interface BookingData {
   checkOut: string;
   guests: number;
   cabinName: string;
+  checkInInfo: CheckInInfo;
 }
 
 function formatCurrency(amount: number): string {
@@ -85,7 +86,7 @@ function ConfirmationContent() {
       return;
     }
 
-    fetch(`/api/booking?session_id=${sessionId}`)
+    fetch(`/api/booking?session_id=${encodeURIComponent(sessionId)}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
@@ -109,22 +110,23 @@ function ConfirmationContent() {
   if (error) return <ErrorState message={error} />;
   if (!booking) return null;
 
+  const info = booking.checkInInfo;
+
   const handleAddToCalendar = () => {
-    const checkIn = new Date(booking.checkIn);
-    const checkOut = new Date(booking.checkOut);
-    const formatICSDate = (date: Date) =>
-      date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    // Use VALUE=DATE format to avoid timezone issues with all-day events
+    const formatICSDate = (dateStr: string) =>
+      dateStr.replace(/-/g, "").slice(0, 8);
 
     const ics = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
       "PRODID:-//Sneppen//Booking//EN",
       "BEGIN:VEVENT",
-      `DTSTART:${formatICSDate(checkIn)}`,
-      `DTEND:${formatICSDate(checkOut)}`,
-      `SUMMARY:Stay at ${cabin.name}`,
-      `DESCRIPTION:Check-in: ${cabin.houseRules.checkIn}\\nCheck-out: ${cabin.houseRules.checkOut}\\nAddress: ${cabin.checkInInfo.address}\\nKey code: ${cabin.checkInInfo.keyCode}`,
-      `LOCATION:${cabin.checkInInfo.address}`,
+      `DTSTART;VALUE=DATE:${formatICSDate(booking.checkIn)}`,
+      `DTEND;VALUE=DATE:${formatICSDate(booking.checkOut)}`,
+      `SUMMARY:Stay at ${booking.cabinName}`,
+      `DESCRIPTION:Address: ${info.address}\\nKey code: ${info.keyCode}\\nHost: ${info.hostPhone}`,
+      `LOCATION:${info.address}`,
       "END:VEVENT",
       "END:VCALENDAR",
     ].join("\r\n");
@@ -183,7 +185,7 @@ function ConfirmationContent() {
               showCheck ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             }`}
           >
-            Your stay at {booking.cabinName || cabin.name} is all set.
+            Your stay at {booking.cabinName} is all set.
           </p>
         </div>
 
@@ -231,7 +233,7 @@ function ConfirmationContent() {
           </div>
         </div>
 
-        {/* Check-in details */}
+        {/* Check-in details — served from API, only after payment verified */}
         <div
           className={`mt-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 transition-all delay-[900ms] duration-700 ease-out md:p-8 ${
             showCheck ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
@@ -249,7 +251,7 @@ function ConfirmationContent() {
               <div>
                 <p className="text-sm font-medium text-cabin-cream">Address</p>
                 <p className="mt-0.5 text-sm text-cabin-cream/50">
-                  {cabin.checkInInfo.address}
+                  {info.address}
                 </p>
               </div>
             </div>
@@ -261,7 +263,7 @@ function ConfirmationContent() {
               <div>
                 <p className="text-sm font-medium text-cabin-cream">Key code</p>
                 <p className="mt-0.5 font-mono text-sm text-cabin-amber">
-                  {cabin.checkInInfo.keyCode}
+                  {info.keyCode}
                 </p>
               </div>
             </div>
@@ -273,7 +275,7 @@ function ConfirmationContent() {
               <div>
                 <p className="text-sm font-medium text-cabin-cream">Host contact</p>
                 <p className="mt-0.5 text-sm text-cabin-cream/50">
-                  {cabin.host.name} &middot; {cabin.checkInInfo.hostPhone}
+                  {info.hostPhone}
                 </p>
               </div>
             </div>
@@ -287,13 +289,13 @@ function ConfirmationContent() {
                 <p className="mt-0.5 text-sm text-cabin-cream/50">
                   Network:{" "}
                   <span className="font-mono text-cabin-cream/70">
-                    {cabin.checkInInfo.wifiName}
+                    {info.wifiName}
                   </span>
                 </p>
                 <p className="text-sm text-cabin-cream/50">
                   Password:{" "}
                   <span className="font-mono text-cabin-cream/70">
-                    {cabin.checkInInfo.wifiPassword}
+                    {info.wifiPassword}
                   </span>
                 </p>
               </div>

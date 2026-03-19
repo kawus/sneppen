@@ -104,7 +104,7 @@ export function BookingWidget() {
       return;
     }
 
-    if (!email || !email.includes("@")) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setErrors(["Please enter a valid email address"]);
       return;
     }
@@ -134,11 +134,10 @@ export function BookingWidget() {
         return;
       }
 
-      // Redirect to Stripe Checkout
+      // Redirect to Stripe Checkout — don't reset loading, we're navigating away
       window.location.href = data.url;
     } catch {
       setErrors(["Failed to connect to payment service"]);
-    } finally {
       setLoading(false);
     }
   };
@@ -299,7 +298,7 @@ export function BookingWidget() {
 
             {/* Pricing breakdown */}
             {pricing && pricing.nights > 0 && (
-              <div className="mt-6 space-y-3 border-t border-white/[0.06] pt-6">
+              <div className="mt-6 space-y-3 border-t border-white/[0.06] pt-6" aria-live="polite">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-cabin-cream/50">
                     {formatCurrency(pricingConfig.basePricePerNight)} x{" "}

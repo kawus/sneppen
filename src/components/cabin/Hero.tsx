@@ -11,16 +11,24 @@ export function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let rafId: number | null = null;
     const handleScroll = () => {
-      if (heroRef.current) {
-        const rect = heroRef.current.getBoundingClientRect();
-        if (rect.bottom > 0) {
-          setScrollY(window.scrollY);
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        if (heroRef.current) {
+          const rect = heroRef.current.getBoundingClientRect();
+          if (rect.bottom > 0) {
+            setScrollY(window.scrollY);
+          }
         }
-      }
+        rafId = null;
+      });
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   useEffect(() => {
