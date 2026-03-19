@@ -55,7 +55,7 @@ function ErrorState({ message }: { message: string }) {
         <div className="flex size-16 items-center justify-center rounded-full bg-red-500/10">
           <AlertCircle className="size-7 text-red-400" />
         </div>
-        <h1 className="mt-6 font-serif text-2xl font-semibold tracking-tight text-cabin-cream">
+        <h1 className="mt-6 text-2xl font-bold tracking-tight text-cabin-cream">
           Something went wrong
         </h1>
         <p className="mt-2 text-sm text-cabin-cream/50">{message}</p>
@@ -174,7 +174,7 @@ function ConfirmationContent() {
           </div>
 
           <h1
-            className={`mt-6 font-serif text-3xl font-semibold tracking-tight text-cabin-cream transition-all delay-500 duration-700 ease-out md:text-4xl ${
+            className={`mt-6 text-3xl font-bold tracking-tight text-cabin-cream transition-all delay-500 duration-700 ease-out md:text-4xl ${
               showCheck ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             }`}
           >

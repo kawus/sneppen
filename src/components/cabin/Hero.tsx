@@ -68,7 +68,7 @@ export function Hero() {
       <div className="relative flex h-full flex-col items-center justify-center px-6">
         {/* Top nav bar — minimal */}
         <nav className="absolute inset-x-0 top-0 flex items-center justify-between px-6 py-6 md:px-12">
-          <span className="font-serif text-lg tracking-tight text-white/90">
+          <span className="text-lg font-bold tracking-tight text-white/90">
             Sneppen
           </span>
           <a
@@ -83,7 +83,7 @@ export function Hero() {
         <div className="flex flex-col items-center text-center">
           {/* Property name — dramatic editorial typography */}
           <h1
-            className={`font-serif text-6xl font-semibold tracking-tight text-white transition-all duration-1000 ease-out md:text-8xl lg:text-9xl ${
+            className={`text-7xl font-bold tracking-tighter text-white transition-all duration-1000 ease-out md:text-8xl lg:text-9xl ${
               loaded
                 ? "translate-y-0 opacity-100"
                 : "translate-y-8 opacity-0"

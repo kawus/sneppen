@@ -132,7 +132,7 @@ export function Gallery() {
         <p className="text-xs font-medium uppercase tracking-widest text-cabin-amber">
           Gallery
         </p>
-        <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-cabin-cream md:text-4xl">
+        <h2 className="mt-3 text-3xl font-bold tracking-tight text-cabin-cream md:text-4xl">
           Step inside
         </h2>
         <p className="mt-3 max-w-xl text-base text-cabin-cream/50">

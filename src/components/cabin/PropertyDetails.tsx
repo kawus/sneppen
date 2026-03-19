@@ -78,7 +78,7 @@ export function PropertyDetails() {
               <p className="text-xs font-medium uppercase tracking-widest text-cabin-amber">
                 About
               </p>
-              <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-cabin-cream md:text-4xl">
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-cabin-cream md:text-4xl">
                 The cabin
               </h2>
               <div className="mt-6 space-y-4 text-base leading-relaxed text-cabin-cream/60">
@@ -96,7 +96,7 @@ export function PropertyDetails() {
               <p className="text-xs font-medium uppercase tracking-widest text-cabin-amber">
                 Amenities
               </p>
-              <h3 className="mt-3 font-serif text-2xl font-semibold tracking-tight text-cabin-cream">
+              <h3 className="mt-3 text-2xl font-bold tracking-tight text-cabin-cream">
                 Everything you need
               </h3>
               <div className="mt-8 grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-2">
@@ -114,7 +114,7 @@ export function PropertyDetails() {
               <p className="text-xs font-medium uppercase tracking-widest text-cabin-amber">
                 House Rules
               </p>
-              <h3 className="mt-3 font-serif text-2xl font-semibold tracking-tight text-cabin-cream">
+              <h3 className="mt-3 text-2xl font-bold tracking-tight text-cabin-cream">
                 A few things to know
               </h3>
               <div className="mt-8 space-y-4">
@@ -193,7 +193,7 @@ export function PropertyDetails() {
               <p className="text-xs font-medium uppercase tracking-widest text-cabin-amber">
                 Location
               </p>
-              <h3 className="mt-3 font-serif text-2xl font-semibold tracking-tight text-cabin-cream">
+              <h3 className="mt-3 text-2xl font-bold tracking-tight text-cabin-cream">
                 Where you will be
               </h3>
               <div className="mt-6 flex items-start gap-3">

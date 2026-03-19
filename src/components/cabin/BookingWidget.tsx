@@ -155,7 +155,7 @@ export function BookingWidget() {
             <p className="text-xs font-medium uppercase tracking-widest text-cabin-amber">
               Book
             </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight text-cabin-cream md:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-cabin-cream md:text-4xl">
               Reserve your dates
             </h2>
             <p className="mt-4 max-w-lg text-base text-cabin-cream/50">
@@ -165,7 +165,7 @@ export function BookingWidget() {
 
             {/* Per-night rate teaser */}
             <div className="mt-8 inline-flex items-baseline gap-1.5">
-              <span className="font-serif text-4xl font-semibold tracking-tight text-cabin-cream">
+              <span className="text-4xl font-bold tracking-tight text-cabin-cream">
                 {formatCurrency(pricingConfig.basePricePerNight)}
               </span>
               <span className="text-base text-cabin-cream/40">/ night</span>

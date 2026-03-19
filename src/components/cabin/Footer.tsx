@@ -6,7 +6,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
-            <span className="font-serif text-xl tracking-tight text-cabin-cream/80">
+            <span className="text-xl font-bold tracking-tight text-cabin-cream/80">
               {cabin.name}
             </span>
             <p className="mt-1 text-sm text-cabin-cream/30">
